@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salvadanaio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #f0ede6;
+      font-family: 'Libre Baskerville', Georgia, serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .wrap { max-width: 420px; margin: 0 auto; padding: 36px 22px 80px; }
+
+    .piggy-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic; font-weight: 400;
+      letter-spacing: -0.02em; font-size: 38px; color: #e8e4dc;
+    }
+
+    .divider { border: none; border-top: 1px solid #141414; margin: 24px 0; }
+
+    .label-tiny {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 10px; letter-spacing: 0.18em;
+      color: #363636; text-transform: uppercase;
+    }
+
+    /* Total */
+    .total-row { display: flex; align-items: flex-start; gap: 6px; }
+    .total-euro {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      font-size: 40px; color: #2e2e2e; padding-top: 18px;
+    }
+    #total-display {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      font-size: 120px; line-height: 0.88; letter-spacing: -0.05em;
+      color: #ccc8c0; display: inline-block;
+      transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), color 0.3s;
+    }
+    #total-display.flash { transform: scale(1.04); color: #fff; }
+    #ops-count { color: #363636; font-size: 13px; font-style: italic; margin-top: 10px; }
+
+    /* Goal card */
+    .goal-card {
+      background: #0e0e0e; border: 1px solid #1a1a1a;
+      border-radius: 12px; padding: 16px; margin-top: 22px;
+    }
+    .goal-card-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .goal-card-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .goal-name-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px; color: #666; }
+    .goal-amount-text { font-family: 'Playfair Display', serif; font-size: 15px; color: #777; }
+    .progress-track { background: #141414; border-radius: 4px; height: 3px; overflow: hidden; margin-top: 0; }
+    #progress-fill {
+      height: 100%; border-radius: 4px;
+      background: linear-gradient(90deg, #2e2e2e, #888880);
+      transition: width 0.7s cubic-bezier(.34,1.1,.64,1);
+      width: 0%;
+    }
+    #progress-fill.done { background: linear-gradient(90deg, #1e4a1e, #6aaa6a); }
+    .progress-labels { display: flex; justify-content: space-between; margin-top: 9px; }
+    .progress-labels span { font-size: 11px; font-style: italic; color: #333; }
+    #progress-remaining.done { color: #6aaa6a; }
+
+    /* Goal input form */
+    #goal-section { margin-top: 22px; }
+    .goal-btn {
+      background: transparent; border: 1px solid #1e1e1e; color: #363636;
+      border-radius: 8px; padding: 8px 14px;
+      font-family: 'Libre Baskerville', serif; font-size: 11px;
+      cursor: pointer; transition: all 0.18s; letter-spacing: 0.05em;
+      text-transform: uppercase; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .goal-btn:hover { border-color: #3a3a3a; color: #777; }
+    .goal-form { display: flex; flex-direction: column; gap: 10px; }
+    .goal-form-row { display: flex; gap: 10px; align-items: center; }
+
+    /* Inputs & buttons */
+    .custom-input {
+      background: #0f0f0f; border: 1px solid #222; border-radius: 10px;
+      padding: 14px 16px; color: #f0ede6;
+      font-family: 'Libre Baskerville', serif; font-size: 14px;
+      outline: none; width: 100%; transition: border-color 0.2s;
+    }
+    .custom-input:focus { border-color: #444; }
+    .custom-input::placeholder { color: #343434; font-style: italic; }
+    .custom-input.sm { padding: 11px 14px; font-size: 13px; }
+
+    .add-btn {
+      background: #eeebe4; color: #0a0a0a; border: none; border-radius: 10px;
+      padding: 14px 22px; font-family: 'Libre Baskerville', serif;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      white-space: nowrap; letter-spacing: 0.04em; transition: all 0.18s ease;
+    }
+    .add-btn:hover { background: #fff; transform: translateY(-1px); }
+    .add-btn:active { transform: scale(0.97); }
+    .add-btn.sm { padding: 11px 18px; font-size: 13px; }
+
+    .remove-btn {
+      background: transparent; border: none; color: #272727;
+      cursor: pointer; padding: 5px; border-radius: 5px;
+      transition: color 0.18s, background 0.18s;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; line-height: 1;
+    }
+    .remove-btn:hover { color: #b03030; background: #180808; }
+    .remove-btn svg { display: block; }
+
+    .clear-btn {
+      background: transparent; border: 1px solid #1e1e1e; color: #3e3e3e;
+      border-radius: 8px; padding: 7px 14px;
+      font-family: 'Libre Baskerville', serif; font-size: 11px;
+      cursor: pointer; transition: all 0.18s; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .clear-btn:hover { border-color: #6a1010; color: #b03030; }
+
+    /* Quick buttons */
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .quick-btn {
+      background: #131313; border: 1px solid #222; color: #c0bcb4;
+      border-radius: 10px; padding: 15px 8px;
+      font-family: 'Libre Baskerville', serif; font-size: 14px;
+      cursor: pointer; transition: all 0.18s ease; width: 100%;
+    }
+    .quick-btn:hover { background: #1c1c1c; border-color: #383838; color: #fff; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
+    .quick-btn:active { transform: scale(0.97); }
+
+    .custom-row { display: flex; gap: 10px; }
+
+    /* History */
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    #history-list { max-height: 340px; overflow-y: auto; }
+    .history-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 13px 0; border-bottom: 1px solid #141414;
+      animation: slideIn 0.28s ease;
+    }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    .history-left { display: flex; align-items: center; gap: 10px; }
+    .history-amount { font-family: 'Playfair Display', serif; font-size: 17px; color: #bab6ae; }
+    .history-right { display: flex; align-items: center; gap: 12px; }
+    .history-time { color: #2e2e2e; font-size: 12px; font-style: italic; }
+    .empty-msg { font-family: 'Playfair Display', serif; font-style: italic; color: #1e1e1e; font-size: 17px; text-align: center; padding: 48px 0; }
+
+    /* Notifications */
+    #badge {
+      position: fixed; top: 20px; right: 20px;
+      background: #eeebe4; color: #0a0a0a;
+      padding: 8px 18px; border-radius: 50px;
+      font-family: 'Libre Baskerville', serif; font-size: 13px; font-weight: 700;
+      animation: badgePop 0.3s cubic-bezier(.34,1.56,.64,1);
+      z-index: 100; pointer-events: none; display: none;
+    }
+    @keyframes badgePop { from { opacity: 0; transform: scale(0.7) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    #goal-banner {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: linear-gradient(135deg, #111f11, #0c180c);
+      border-bottom: 1px solid #254525;
+      padding: 14px 20px; text-align: center;
+      font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; color: #6aaa6a;
+      animation: bannerDown 0.45s ease; z-index: 200; display: none;
+    }
+    @keyframes bannerDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+    /* Misc */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 2px; }
+
+    .hidden { display: none !important; }
+    .flex-row { display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- Goal reached banner -->
+  <div id="goal-banner"></div>
+  <!-- Badge popup -->
+  <div id="badge"></div>
+
+  <div class="wrap">
+
+    <h1 class="piggy-title">Salvadanaio</h1>
+    <hr class="divider" style="margin: 18px 0 36px" />
+
+    <!-- Total -->
+    <div>
+      <p class="label-tiny" style="margin-bottom:14px">Totale Risparmiato</p>
+      <div class="total-row">
+        <span class="total-euro">€</span>
+        <span id="total-display">0</span>
+      </div>
+      <p id="ops-count" style="margin-top:10px">0 operazioni</p>
+    </div>
+
+    <!-- Goal Section -->
+    <div id="goal-section" style="margin-top:22px">
+      <!-- Goal card (shown when goal is set) -->
+      <div id="goal-card" class="goal-card hidden">
+        <div class="goal-card-row">
+          <div class="goal-card-left">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span class="label-tiny" style="color:#444">Obiettivo</span>
+            <span id="goal-name-display" class="goal-name-text hidden"></span>
+            <span id="goal-amount-display" class="goal-amount-text"></span>
+          </div>
+          <button class="remove-btn" onclick="removeGoal()" title="Rimuovi obiettivo" style="color:#333">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="progress-track">
+          <div id="progress-fill"></div>
+        </div>
+        <div class="progress-labels">
+          <span id="progress-pct">0%</span>
+          <span id="progress-remaining"></span>
+        </div>
+      </div>
+
+      <!-- Goal set button -->
+      <button id="goal-set-btn" class="goal-btn" onclick="showGoalForm()">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        Imposta obiettivo
+      </button>
+
+      <!-- Goal form -->
+      <div id="goal-form" class="goal-form hidden">
+        <input id="goal-name-input" class="custom-input sm" type="text" placeholder="Nome obiettivo (es. Vacanze, Mac...)"
+          onkeydown="if(event.key==='Escape') hideGoalForm()" />
+        <div class="goal-form-row">
+          <input id="goal-amount-input" class="custom-input sm" type="number" min="1" step="1" placeholder="Importo obiettivo in € (es. 500)"
+            onkeydown="if(event.key==='Enter') saveGoal(); if(event.key==='Escape') hideGoalForm()" />
+          <button class="add-btn sm" onclick="saveGoal()">Salva</button>
+          <button class="remove-btn" onclick="hideGoalForm()" style="color:#444">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" style="margin-top:28px" />
+
+    <!-- Quick Add -->
+    <div style="margin-bottom:24px">
+      <p class="label-tiny" style="margin-bottom:16px">Aggiungi</p>
+      <div class="quick-grid">
+        <button class="quick-btn" onclick="addAmount(1)">+ €1</button>
+        <button class="quick-btn" onclick="addAmount(5)">+ €5</button>
+        <button class="quick-btn" onclick="addAmount(10)">+ €10</button>
+        <button class="quick-btn" onclick="addAmount(20)">+ €20</button>
+        <button class="quick-btn" onclick="addAmount(50)">+ €50</button>
+        <button class="quick-btn" onclick="addAmount(100)">+ €100</button>
+      </div>
+      <div class="custom-row">
+        <input id="custom-input" class="custom-input" type="number" min="0" step="0.01" placeholder="Importo personalizzato"
+          onkeydown="if(event.key==='Enter') handleCustomAdd()" />
+        <button class="add-btn" onclick="handleCustomAdd()">Aggiungi</button>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- History -->
+    <div>
+      <div class="history-header">
+        <p class="label-tiny">Storico</p>
+        <button id="clear-btn" class="clear-btn hidden" onclick="clearAll()">Cancella tutto</button>
+      </div>
+      <div id="history-list"></div>
+      <p id="empty-msg" class="empty-msg">Nessuna operazione ancora.</p>
+    </div>
+
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'salvadanaio_v2';
+
+    // ── State ──────────────────────────────────────────────────────────
+    let state = { total: 0, history: [], goal: null, goalName: null };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) state = JSON.parse(raw);
+      } catch {}
+    }
+
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────
+    function formatCurrency(val) {
+      if (val >= 1000) return val.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+      return val % 1 === 0 ? String(val) : val.toFixed(2);
+    }
+
+    function formatTime() {
+      return new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function formatDate() {
+      return new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────
+    function render() {
+      // Total
+      document.getElementById('total-display').textContent = formatCurrency(state.total);
+      const n = state.history.length;
+      document.getElementById('ops-count').textContent = n + (n === 1 ? ' operazione' : ' operazioni');
+
+      // Goal
+      if (state.goal) {
+        document.getElementById('goal-card').classList.remove('hidden');
+        document.getElementById('goal-set-btn').classList.add('hidden');
+        document.getElementById('goal-form').classList.add('hidden');
+
+        const nameEl = document.getElementById('goal-name-display');
+        if (state.goalName) {
+          nameEl.textContent = state.goalName;
+          nameEl.classList.remove('hidden');
+          document.getElementById('goal-amount-display').textContent = '— €' + formatCurrency(state.goal);
+        } else {
+          nameEl.classList.add('hidden');
+          document.getElementById('goal-amount-display').textContent = '€' + formatCurrency(state.goal);
+        }
+
+        const pct = Math.min((state.total / state.goal) * 100, 100);
+        const fill = document.getElementById('progress-fill');
+        fill.style.width = pct + '%';
+        fill.classList.toggle('done', pct >= 100);
+        document.getElementById('progress-pct').textContent = pct.toFixed(0) + '%';
+
+        const remEl = document.getElementById('progress-remaining');
+        const remaining = Math.max(state.goal - state.total, 0);
+        if (remaining > 0) {
+          remEl.textContent = 'mancano €' + formatCurrency(remaining);
+          remEl.classList.remove('done');
+        } else {
+          remEl.textContent = '✓ Raggiunto';
+          remEl.classList.add('done');
+        }
+      } else {
+        document.getElementById('goal-card').classList.add('hidden');
+        document.getElementById('goal-set-btn').classList.remove('hidden');
+      }
+
+      // History
+      const list = document.getElementById('history-list');
+      const emptyMsg = document.getElementById('empty-msg');
+      const clearBtn = document.getElementById('clear-btn');
+
+      if (state.history.length === 0) {
+        list.innerHTML = '';
+        emptyMsg.style.display = 'block';
+        clearBtn.classList.add('hidden');
+      } else {
+        emptyMsg.style.display = 'none';
+        clearBtn.classList.remove('hidden');
+        list.innerHTML = state.history.map(item => `
+          <div class="history-item" data-id="${item.id}">
+            <div class="history-left">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#282828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              <span class="history-amount">+€${formatCurrency(item.amount)}</span>
+            </div>
+            <div class="history-right">
+              <span class="history-time">${item.date} · ${item.time}</span>
+              <button class="remove-btn" onclick="removeEntry(${item.id}, ${item.amount})" title="Rimuovi">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // ── Actions ────────────────────────────────────────────────────────
+    function addAmount(amount) {
+      const parsed = parseFloat(amount);
+      if (isNaN(parsed) || parsed <= 0) return;
+
+      const entry = { id: Date.now(), amount: parsed, time: formatTime(), date: formatDate() };
+      state.total = +(state.total + parsed).toFixed(2);
+      state.history.unshift(entry);
+      saveState();
+      render();
+
+      // Flash animation
+      const el = document.getElementById('total-display');
+      el.classList.remove('flash');
+      void el.offsetWidth; // reflow
+      el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 600);
+
+      // Badge
+      showBadge('+€' + formatCurrency(parsed));
+
+      // Goal reached?
+      if (state.goal && state.total >= state.goal) {
+        const name = state.goalName ? `"${state.goalName}" raggiunto` : 'Obiettivo raggiunto';
+        showGoalBanner(`🎯 ${name}! €${formatCurrency(state.goal)} — complimenti!`);
+      }
+    }
+
+    function handleCustomAdd() {
+      const input = document.getElementById('custom-input');
+      addAmount(parseFloat(input.value));
+      input.value = '';
+    }
+
+    function removeEntry(id, amount) {
+      state.total = Math.max(0, +(state.total - amount).toFixed(2));
+      state.history = state.history.filter(h => h.id !== id);
+      saveState();
+      render();
+    }
+
+    function clearAll() {
+      state.total = 0;
+      state.history = [];
+      saveState();
+      render();
+    }
+
+    // ── Goal ───────────────────────────────────────────────────────────
+    function showGoalForm() {
+      document.getElementById('goal-set-btn').classList.add('hidden');
+      document.getElementById('goal-form').classList.remove('hidden');
+      document.getElementById('goal-name-input').focus();
+    }
+
+    function hideGoalForm() {
+      document.getElementById('goal-form').classList.add('hidden');
+      document.getElementById('goal-set-btn').classList.remove('hidden');
+      document.getElementById('goal-name-input').value = '';
+      document.getElementById('goal-amount-input').value = '';
+    }
+
+    function saveGoal() {
+      const amount = parseFloat(document.getElementById('goal-amount-input').value);
+      if (isNaN(amount) || amount <= 0) return;
+      const name = document.getElementById('goal-name-input').value.trim();
+      state.goal = amount;
+      state.goalName = name || null;
+      saveState();
+      hideGoalForm();
+      render();
+    }
+
+    function removeGoal() {
+      state.goal = null;
+      state.goalName = null;
+      saveState();
+      render();
+    }
+
+    // ── Notifications ──────────────────────────────────────────────────
+    let badgeTimer = null;
+    function showBadge(text) {
+      const el = document.getElementById('badge');
+      el.textContent = text;
+      el.style.display = 'block';
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = 'badgePop 0.3s cubic-bezier(.34,1.56,.64,1)';
+      clearTimeout(badgeTimer);
+      badgeTimer = setTimeout(() => { el.style.display = 'none'; }, 2000);
+    }
+
+    let bannerTimer = null;
+    function showGoalBanner(text) {
+      const el = document.getElementById('goal-banner');
+      el.textContent = text;
+      el.style.display = 'block';
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = 'bannerDown 0.45s ease';
+      clearTimeout(bannerTimer);
+      bannerTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────
+    loadState();
+    render();
+  </script>
+</body>
+</html>
