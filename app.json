@@ -1,18 +1,15 @@
 {
   "name": "Salvadanaio",
   "short_name": "Salvadanaio",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#2ecc71",
   "icons": [
     {
       "src": "icona.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     }
   ]
 }
-
