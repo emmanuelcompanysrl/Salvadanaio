@@ -503,16 +503,9 @@ html, body {
       bannerTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
     }
 
- <script>
-      // Avvio pulito dell'app
-      try {
-        loadState();
-        render();
-        console.log("App resettata e funzionante!");
-      } catch (e) {
-        console.error("Errore nel caricamento dei dati:", e);
-      }
-    </script>
-  </body>
+    // ── Init ───────────────────────────────────────────────────────────
+    loadState();
+    render();
+  </script>
+</body>
 </html>
-
