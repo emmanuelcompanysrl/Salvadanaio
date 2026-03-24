@@ -504,16 +504,24 @@ html, body {
     }
 
       <script>
-    // ── Init ───────────────────────────────────────────────────────────
+  // 1. Fa partire l'app
+  try {
     loadState();
     render();
-    if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(() => console.log("Service Worker: Pronto!"))
-      .catch(err => console.log("Service Worker: Errore", err));
-  });
-}
+    console.log("App caricata correttamente!");
+  } catch (errore) {
+    console.error("Errore nel caricamento dei dati:", errore);
+  }
+
+  // 2. Attiva l'offline (Service Worker)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log("Service Worker: Attivo!"))
+        .catch(err => console.error("Errore Service Worker:", err));
+    });
+  }
 </script>
+
 </body>
 </html>
