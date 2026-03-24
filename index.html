@@ -503,32 +503,16 @@ html, body {
       bannerTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
     }
 
-<!-- Assicurati che sopra questo codice ci siano tutte le funzioni come addAmount e showGoalForm -->
-
-<script>
-  // 1. Inizializzazione App
-  try {
-    if (typeof loadState === 'function') {
-      loadState();
-      render();
-      console.log("App caricata con successo!");
-    } else {
-      console.error("La funzione loadState non esiste. Controlla di non aver cancellato il codice sopra!");
-    }
-  } catch (e) {
-    console.error("Errore durante l'init:", e);
-  }
-
-  // 2. Registrazione Service Worker per Offline
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log("Service Worker registrato!", reg))
-        .catch(err => console.error("Errore Service Worker:", err));
-    });
-  }
-</script>
-
-</body>
+ <script>
+      // Avvio pulito dell'app
+      try {
+        loadState();
+        render();
+        console.log("App resettata e funzionante!");
+      } catch (e) {
+        console.error("Errore nel caricamento dei dati:", e);
+      }
+    </script>
+  </body>
 </html>
 
