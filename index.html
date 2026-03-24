@@ -503,10 +503,10 @@ html, body {
       bannerTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
     }
 
+      <script>
     // ── Init ───────────────────────────────────────────────────────────
     loadState();
     render();
-  <script>
     if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
