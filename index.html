@@ -13,12 +13,12 @@
     <meta name="apple-mobile-web-app-title" content="Salvadanaio">
 
     <link rel="manifest" href="app.json?v=123">
-    <script>
+<script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/nome-repo/sw.js')
-        .then(reg => console.log('PWA Attiva!'))
-        .catch(err => console.log('Errore SW:', err));
+      navigator.worker = navigator.serviceWorker.register('/Salvadanaio/sw.js')
+        .then(reg => console.log('Salvadanaio PWA: Pronto!'))
+        .catch(err => console.error('Salvadanaio PWA: Errore', err));
     });
   }
 </script>
